@@ -28,3 +28,28 @@ html[data-mode="light"][data-palette="midnight"]{--accent:#3F6D9E;--accent-on:#f
 html[data-palette="cocoa"]{--accent:#CB9B7E;--accent-on:#111411;--bg:#17120F;--surface:#211A16;--surface-2:#1B1612;--border:#49382F;}
 html[data-mode="light"][data-palette="cocoa"]{--accent:#855B45;--accent-on:#fff;--bg:#FAF6F2;--surface:#FFFFFF;--surface-2:#F5EFEA;--border:#E8D9D0;}
 
+
+
+/* Personalização por usuário e grade responsiva de temas */
+html[data-palette="custom"]{--bg:#101316;--surface:#1a1e21;--surface-2:#151a1d;--border:#344043}
+html[data-mode="light"][data-palette="custom"]{--bg:#f7f7f9;--surface:#ffffff;--surface-2:#f3f4f6;--border:#dfe2e6}
+html[data-palette="burgundy"] .brand-logo{background:linear-gradient(135deg,#d9ae70,#c47193)}
+html[data-palette="gold"] .brand-logo{background:linear-gradient(135deg,#e9c57c,#b98e47)}
+.palette-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.palette-card{min-height:98px;padding:13px;justify-content:flex-start;gap:7px}
+.palette-card .swatches{margin-bottom:1px}
+.palette-card .swatches i{width:18px;height:18px;border:1px solid var(--border)}
+.palette-card b{font-size:12px;line-height:1.3}
+.palette-card .palette-description{color:var(--muted);font-size:10px;line-height:1.3;padding-right:7px}
+.palette-card.chosen{border-color:var(--accent)}
+.custom-palette-panel .section-head{align-items:flex-start}
+.custom-color-controls{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin:15px 0 9px}
+.custom-color-picker{display:flex;align-items:center;gap:7px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:5px 9px}
+.custom-color-picker input[type="color"]{width:46px;height:38px;border:0;padding:0;background:transparent;cursor:pointer}
+.personal-color-preview{width:24px;height:24px;display:block;border-radius:50%;border:1px solid var(--border);flex:none}
+.custom-color-value{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--muted);min-width:76px;font-size:12px}
+.custom-color-selected{display:inline-flex;align-items:center;gap:5px;color:var(--accent);font-weight:700;font-size:11px}
+.custom-palette-panel .subtle:last-child{margin:0}
+@media (max-width:850px){.palette-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:620px){.palette-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.palette-card{min-height:90px}.custom-color-controls .btn{width:100%}}
+@media (max-width:360px){.palette-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.palette-card{padding:9px;min-width:0}}
