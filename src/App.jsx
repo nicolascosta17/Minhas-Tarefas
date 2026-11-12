@@ -5,7 +5,24 @@ import {Document,Packer,Paragraph,Table,TableCell,TableRow,TextRun,HeadingLevel}
 import * as XLSX from 'xlsx';
 
 const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-const PALETTES=[['emerald','Esmeralda','#38b991'],['ocean','Oceano','#469ed2'],['amethyst','Ametista','#b678d9'],['terracotta','Terracota','#ce7959'],['graphite','Grafite','#a4b1c2']];
+const PALETTES=[
+ ['emerald','Esmeralda','#38b991','Verde profundo'],
+ ['ocean','Oceano','#469ed2','Azul claro'],
+ ['amethyst','Ametista','#b678d9','Roxo delicado'],
+ ['terracotta','Terracota','#ce7959','Terroso e quente'],
+ ['graphite','Grafite','#a4b1c2','Cinza sofisticado'],
+ ['burgundy','Bordô Luxo','#D07A98','Vinho e dourado'],
+ ['rose','Rosé','#E68FB5','Rosa elegante'],
+ ['lavender','Lavanda','#A896F0','Lilás suave'],
+ ['sapphire','Safira','#6C8AF8','Azul intenso'],
+ ['turquoise','Turquesa','#35C6C4','Verde-azulado'],
+ ['olive','Oliva','#B3C76A','Verde natural'],
+ ['gold','Dourado','#DDB96F','Champanhe e ouro'],
+ ['coral','Coral','#FA9379','Laranja suave'],
+ ['ruby','Rubi','#E57B86','Vermelho refinado'],
+ ['midnight','Azul Noturno','#7AADD9','Azul petróleo'],
+ ['cocoa','Chocolate','#CB9B7E','Marrom aconchegante']
+];
 const REPEATS=[['nenhuma','Não repetir'],['diaria','Diariamente'],['dias_uteis','Dias úteis'],['semanal','Semanalmente'],['mensal','Mensalmente']];
 const pad=n=>String(n).padStart(2,'0');
 const iso=d=>[d.getFullYear(),pad(d.getMonth()+1),pad(d.getDate())].join('-');
@@ -74,15 +91,60 @@ function Reports({items,depts,cats,mode,setMode,date,setDate}){const d=at(date);
 
  return <div className="page"><div className="page-head reports-head"><div><span className="eyebrow">RELATÓRIOS</span><h1>{label}</h1><p className="subtle">Acompanhe o progresso e exporte suas atividades.</p></div><div className="report-filters"><div className="segmented"><button className={mode==='monthly'?'selected':''} onClick={()=>setMode('monthly')}>Mensal</button><button className={mode==='weekly'?'selected':''} onClick={()=>setMode('weekly')}>Semanal</button></div>{mode==='weekly'?<><button className="icon-btn outlined" onClick={()=>setDate(shift(date,-7))}><ChevronLeft size={17}/></button><input type="date" value={date} onChange={e=>setDate(e.target.value)}/><button className="icon-btn outlined" onClick={()=>setDate(shift(date,7))}><ChevronRight size={17}/></button></>:<><select aria-label="Mês" value={d.getMonth()} onChange={e=>setDate(iso(new Date(d.getFullYear(),Number(e.target.value),1)))}>{MONTHS.map((m,i)=><option key={i} value={i}>{m}</option>)}</select><select aria-label="Ano" value={d.getFullYear()} onChange={e=>setDate(iso(new Date(Number(e.target.value),d.getMonth(),1)))}>{Array.from({length:11},(_,i)=>2022+i).map(y=><option key={y}>{y}</option>)}</select></>}</div></div><div className="metric-grid">{[['TOTAL DE TAREFAS',st.all],['CONCLUÍDAS',st.done],['PENDENTES',st.pending],['CONCLUSÃO',st.percent+'%']].map(([label,value],i)=><div className="panel metric" key={i}><span>{label}</span><strong className={i===1?'accent':''}>{value}</strong></div>)}</div><section className="panel report-panel"><div className="section-head"><div><h2>Atividades do período</h2><p className="subtle">{list.length} registros</p></div><div className="download-actions"><button className="btn secondary" onClick={()=>word().catch(e=>alert(e.message))}><FileText size={15}/> Word (.docx)</button><button className="btn secondary" onClick={excel}><FileSpreadsheet size={15}/> Excel (.xlsx)</button></div></div><div className="table-wrap"><table><thead><tr><th>DATA</th><th>TÍTULO E DESCRIÇÃO</th><th>DEPARTAMENTO</th><th>STATUS</th><th>CONCLUÍDA EM</th></tr></thead><tbody>{list.map(t=><tr key={t.id}><td>{fmt(t.data)}</td><td><b>{t.titulo}</b><div className="subtle">{t.descricao}</div></td><td>{depts.find(x=>x.id===t.departamento_id)?.nome||'—'}</td><td className={t.concluida_em?'accent':''}>{t.concluida_em?'● Concluída':'○ Pendente'}</td><td>{stamp(t.concluida_em)}</td></tr>)}</tbody></table>{!list.length&&<div className="empty-table">Nenhuma tarefa nesse período.</div>}</div></section></div>
 }
-function Preferences({prefs,onChange,cats,onNewCat}){return <div className="page"><div className="page-head"><div><span className="eyebrow">CONFIGURAÇÕES</span><h1>Aparência do site</h1><p className="subtle">As preferências são salvas na sua conta do Supabase.</p></div></div><section className="panel setting-panel"><h2>Modo</h2><p className="subtle">Defina o brilho geral do sistema.</p><div className="buttons"><button className={'btn '+(prefs.modo==='light'?'primary':'secondary')} onClick={()=>onChange('light',prefs.paleta)}><Sun size={16}/> Claro</button><button className={'btn '+(prefs.modo==='dark'?'primary':'secondary')} onClick={()=>onChange('dark',prefs.paleta)}><Moon size={16}/> Escuro</button></div></section><section className="panel setting-panel"><div className="section-head"><h2>Cores do site</h2><button className="btn text-btn" onClick={()=>onChange('dark','emerald')}><RotateCcw size={15}/> Restaurar</button></div><p className="subtle">Escolha uma das paletas abaixo.</p><div className="palette-grid">{PALETTES.map(([id,name,color])=><button key={id} onClick={()=>onChange(prefs.modo,id)} className={'palette-card '+(prefs.paleta===id?'chosen':'')}><div className="swatches"><i style={{background:'#f5f5f5'}}/><i style={{background:color}}/><i style={{background:'#33413c'}}/></div><b>{name}</b>{prefs.paleta===id&&<CheckCircle2 size={17}/>}</button>)}</div></section><section className="panel setting-panel"><div className="section-head"><h2>Categorias cadastradas</h2><button className="btn secondary" onClick={onNewCat}><Plus size={15}/> Categoria</button></div><div className="category-list">{cats.map(c=><span key={c.id}>{c.nome}</span>)}</div></section></div>}
+function Preferences({prefs,onChange,cats,onNewCat}){
+ const [personalColor,setPersonalColor]=useState(prefs.cor_personalizada||'#8D3E62');
+ useEffect(()=>setPersonalColor(prefs.cor_personalizada||'#8D3E62'),[prefs.cor_personalizada]);
+ return <div className="page">
+  <div className="page-head"><div><span className="eyebrow">CONFIGURAÇÕES</span><h1>Aparência do site</h1><p className="subtle">Escolha um tema. As preferências são salvas na sua conta do Supabase.</p></div></div>
+  <section className="panel setting-panel">
+   <h2>Modo</h2><p className="subtle">Defina o brilho geral do sistema.</p>
+   <div className="buttons"><button className={'btn '+(prefs.modo==='light'?'primary':'secondary')} onClick={()=>onChange('light',prefs.paleta)}><Sun size={16}/> Claro</button><button className={'btn '+(prefs.modo==='dark'?'primary':'secondary')} onClick={()=>onChange('dark',prefs.paleta)}><Moon size={16}/> Escuro</button></div>
+  </section>
+  <section className="panel setting-panel">
+   <div className="section-head"><h2>Cores do site</h2><button className="btn text-btn" onClick={()=>onChange('dark','emerald')}><RotateCcw size={15}/> Restaurar padrão</button></div>
+   <p className="subtle">Escolha entre {PALETTES.length} paletas. As cores mudam na hora em todas as telas.</p>
+   <div className="palette-grid">{PALETTES.map(([id,name,color,description])=><button type="button" key={id} onClick={()=>onChange(prefs.modo,id)} aria-pressed={prefs.paleta===id} className={'palette-card '+(prefs.paleta===id?'chosen':'')}>
+    <div className="swatches"><i style={{background:'#f4f2ef'}}/><i style={{background:color}}/><i style={{background:'#34403b'}}/></div>
+    <b>{name}</b><small className="palette-description">{description}</small>
+    {prefs.paleta===id&&<CheckCircle2 size={17}/>}
+   </button>)}</div>
+  </section>
+  <section className="panel setting-panel custom-palette-panel">
+   <div className="section-head"><div><h2>Cor personalizada</h2><p className="subtle">Prefere uma cor exclusiva? Escolha o tom que desejar.</p></div>{prefs.paleta==='custom'&&<span className="custom-color-selected"><CheckCircle2 size={15}/> Em uso</span>}</div>
+   <div className="custom-color-controls">
+    <label className="custom-color-picker"><span className="personal-color-preview" style={{background:personalColor}}/><input aria-label="Escolher uma cor personalizada" type="color" value={personalColor} onChange={e=>setPersonalColor(e.target.value)}/></label>
+    <span className="custom-color-value">{personalColor.toUpperCase()}</span>
+    <button type="button" className="btn primary" onClick={()=>onChange(prefs.modo,'custom',personalColor)}>Aplicar minha cor</button>
+   </div>
+   <p className="subtle">Sua escolha fica disponível quando você entrar na sua conta em outro dispositivo.</p>
+  </section>
+  <section className="panel setting-panel"><div className="section-head"><h2>Categorias cadastradas</h2><button className="btn secondary" onClick={onNewCat}><Plus size={15}/> Categoria</button></div><div className="category-list">{cats.map(c=><span key={c.id}>{c.nome}</span>)}</div></section>
+ </div>;
+}
+
 export default function App(){
  const [session,setSession]=useState(null),[ready,setReady]=useState(false),[tasks,setTasks]=useState([]),[depts,setDepts]=useState([]),[cats,setCats]=useState([]),[prefs,setPrefs]=useState({modo:'dark',paleta:'emerald'});
  const [view,setView]=useState('today'),[day,setDay]=useState(today()),[reportMode,setReportMode]=useState('monthly'),[reportDate,setReportDate]=useState(today()),[modal,setModal]=useState(null),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[saving,setSaving]=useState('Tudo salvo na sua conta');
  const uid=session?.user?.id;
- const refresh=useCallback(async id=>{const [t,d,c,p]=await Promise.all([supabase.from('agenda_tarefas').select('*').eq('user_id',id).order('data').limit(5000),supabase.from('agenda_departamentos').select('*').eq('user_id',id).order('nome'),supabase.from('agenda_categorias').select('*').eq('user_id',id).order('nome'),supabase.from('agenda_preferencias').select('*').eq('user_id',id).maybeSingle()]);setTasks(resolve(t)||[]);setDepts(resolve(d)||[]);setCats(resolve(c)||[]);if(resolve(p))setPrefs({modo:p.data.modo,paleta:p.data.paleta});setSaving('Tudo salvo na sua conta')},[]);
+ const refresh=useCallback(async id=>{const [t,d,c,p]=await Promise.all([supabase.from('agenda_tarefas').select('*').eq('user_id',id).order('data').limit(5000),supabase.from('agenda_departamentos').select('*').eq('user_id',id).order('nome'),supabase.from('agenda_categorias').select('*').eq('user_id',id).order('nome'),supabase.from('agenda_preferencias').select('*').eq('user_id',id).maybeSingle()]);setTasks(resolve(t)||[]);setDepts(resolve(d)||[]);setCats(resolve(c)||[]);if(resolve(p))setPrefs({modo:p.data.modo,paleta:p.data.paleta,cor_personalizada:p.data.cor_personalizada||'#8D3E62'});setSaving('Tudo salvo na sua conta')},[]);
  useEffect(()=>{let alive=true;supabase.auth.getSession().then(({data})=>{if(alive){setSession(data.session);setReady(true)}});const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,s)=>{if(alive){setSession(s);setReady(true)}});return()=>{alive=false;subscription.unsubscribe()}},[]);
  useEffect(()=>{if(uid)refresh(uid).catch(e=>setNotice(e.message));else{setTasks([]);setDepts([]);setCats([])}},[uid,refresh]);
- useEffect(()=>{document.documentElement.dataset.mode=prefs.modo;document.documentElement.dataset.palette=prefs.paleta},[prefs]);
+ useEffect(()=>{
+ const doc=document.documentElement;
+ doc.dataset.mode=prefs.modo;
+ doc.dataset.palette=prefs.paleta;
+ if(prefs.paleta==='custom'){
+  const color=prefs.cor_personalizada||'#8D3E62';
+  const hex=color.replace('#','');
+  const r=parseInt(hex.slice(0,2),16),g=parseInt(hex.slice(2,4),16),b=parseInt(hex.slice(4,6),16);
+  const brightness=(0.2126*r+0.7152*g+0.0722*b)/255;
+  doc.style.setProperty('--accent',color);
+  doc.style.setProperty('--accent-on',brightness>0.62?'#081510':'#ffffff');
+ }else{
+  doc.style.removeProperty('--accent');
+  doc.style.removeProperty('--accent-on');
+ }
+},[prefs]);
  const act=async(fn,msg)=>{setBusy(true);setSaving('Salvando no Supabase...');try{await fn();await refresh(uid);setModal(null);setNotice(msg)}catch(e){setNotice('Erro: '+e.message);setSaving('Erro ao salvar')}finally{setBusy(false)}};
  const saveTask=(f,existing)=>act(async()=>{const row={user_id:uid,titulo:f.titulo.trim(),descricao:f.descricao||'',data:f.data,horario:f.horario||null,departamento_id:f.departamento_id||null,categoria_id:f.categoria_id||null,repeticao:f.repeticao,prazo_data:f.prazo_data||null,prazo_horario:f.prazo_horario||null,updated_at:new Date().toISOString()};if(existing){if(existing.repeticao!==f.repeticao){row.serie_id=f.repeticao==='nenhuma'?null:crypto.randomUUID();row.data_ancora=f.repeticao==='nenhuma'?null:f.data}resolve(await supabase.from('agenda_tarefas').update(row).eq('id',existing.id).eq('user_id',uid))}else{row.serie_id=f.repeticao==='nenhuma'?null:crypto.randomUUID();row.data_ancora=f.repeticao==='nenhuma'?null:f.data;resolve(await supabase.from('agenda_tarefas').insert(row))}},'Tarefa salva!');
  const toggle=t=>act(async()=>resolve(await supabase.from('agenda_tarefas').update({concluida_em:t.concluida_em?null:new Date().toISOString()}).eq('id',t.id).eq('user_id',uid)),'Status atualizado!');
@@ -90,7 +152,7 @@ export default function App(){
  const saveDept=(f,d)=>act(async()=>{const row={user_id:uid,nome:f.nome.trim(),descricao:f.descricao,cor:f.cor};resolve(d?await supabase.from('agenda_departamentos').update(row).eq('id',d.id).eq('user_id',uid):await supabase.from('agenda_departamentos').insert(row))},'Departamento salvo no Supabase!');
  const removeDept=d=>{if(confirm('Excluir departamento '+d.nome+'? As tarefas serão preservadas.'))act(async()=>resolve(await supabase.from('agenda_departamentos').delete().eq('id',d.id).eq('user_id',uid)),'Departamento excluído.')};
  const saveCat=name=>act(async()=>resolve(await supabase.from('agenda_categorias').insert({user_id:uid,nome:name.trim()})),'Categoria cadastrada!');
- const savePrefs=async(modo,paleta)=>{const old=prefs;setPrefs({modo,paleta});try{resolve(await supabase.from('agenda_preferencias').upsert({user_id:uid,modo,paleta,updated_at:new Date().toISOString()}));setSaving('Preferências salvas no Supabase')}catch(e){setPrefs(old);setNotice(e.message)}};
+ const savePrefs=async(modo,paleta,personalColor=prefs.cor_personalizada||'#8D3E62')=>{const old=prefs;const cor_personalizada=personalColor;setPrefs({modo,paleta,cor_personalizada});try{resolve(await supabase.from('agenda_preferencias').upsert({user_id:uid,modo,paleta,cor_personalizada,updated_at:new Date().toISOString()}));setSaving('Preferências salvas no Supabase')}catch(e){setPrefs(old);setSaving('Erro ao salvar preferências');setNotice(e.message)}};
  const range=useMemo(()=>{if(view==='today')return[day,day];if(view==='reports'){if(reportMode==='weekly'){const first=shift(reportDate,-at(reportDate).getDay());return[first,shift(first,6)]}const d=at(reportDate);return[iso(new Date(d.getFullYear(),d.getMonth(),1)),iso(new Date(d.getFullYear(),d.getMonth()+1,0))]}return[null,null]},[view,day,reportMode,reportDate]);
  const [first,last]=range;
  useEffect(()=>{if(!uid||!first||!last)return;const roots=tasks.filter(t=>t.serie_id&&t.data===t.data_ancora&&!t.excluida&&t.repeticao!=='nenhuma');const seen=new Set(tasks.filter(t=>t.serie_id).map(t=>t.serie_id+'|'+t.data));const creates=[];for(const origin of roots){for(let d=first>origin.data?first:origin.data;d<=last;d=shift(d,1)){if(!occurs(origin,d))continue;const key=origin.serie_id+'|'+d;if(seen.has(key))continue;seen.add(key);creates.push({user_id:uid,titulo:origin.titulo,descricao:origin.descricao,data:d,horario:origin.horario,categoria_id:origin.categoria_id,departamento_id:origin.departamento_id,repeticao:origin.repeticao,serie_id:origin.serie_id,data_ancora:origin.data_ancora,prazo_data:origin.prazo_data?shift(d,Math.round((at(origin.prazo_data)-at(origin.data))/86400000)):null,prazo_horario:origin.prazo_horario})}}if(creates.length){(async()=>{try{for(let i=0;i<creates.length;i+=200)resolve(await supabase.from('agenda_tarefas').upsert(creates.slice(i,i+200),{onConflict:'user_id,serie_id,data',ignoreDuplicates:true}));await refresh(uid)}catch(e){setNotice('Falha na recorrência: '+e.message)}})()}},[uid,first,last,tasks,refresh]);
