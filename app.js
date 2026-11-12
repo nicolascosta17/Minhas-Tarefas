@@ -2,9 +2,9 @@
    Dados separados por usuário e protegidos com políticas RLS no Supabase. */
 (() => {
 'use strict';
-const URL='https://dbzgcydwevpjsfindwcx.supabase.co';
+const SUPABASE_URL='https://dbzgcydwevpjsfindwcx.supabase.co';
 const KEY='sb_publishable_SJIFc-jOXfQdYJjrkH334A_UAw3_1uG';
-const sb=window.supabase?.createClient(URL,KEY);
+const sb=window.supabase?.createClient(SUPABASE_URL,KEY);
 const screen=document.getElementById('screen'),root=document.getElementById('modal-root');
 const nav=document.getElementById('nav'),logout=document.getElementById('logout'),label=document.getElementById('account-label');
 const footer=document.getElementById('footer'),statusEl=document.getElementById('save-status');
@@ -187,7 +187,7 @@ async function exportWord(arr,title,s){
  const z=new JSZip();z.file('[Content_Types].xml','<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
  z.file('_rels/.rels','<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
  z.file('word/document.xml',documentXml);
- try{const blob=await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});const a=document.createElement('a');const u=URLObject(blob);a.href=u;a.download='minhas-tarefas-'+rdate+'.docx';a.click();setTimeout(()=>URL.revokeObjectURL(u),5000)}
+ try{const blob=await z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});const a=document.createElement('a');const u=URLObject(blob);a.href=u;a.download='minhas-tarefas-'+rdate+'.docx';a.click();setTimeout(()=>window.URL.revokeObjectURL(u),5000)}
  catch(e){toast('Erro ao gerar Word: '+errorMessage(e),true)}
 }
 function URLObject(b){return window.URL.createObjectURL(b)}
