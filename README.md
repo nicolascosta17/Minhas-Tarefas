@@ -1,42 +1,42 @@
-# Minhas Tarefas — Agenda diária
+# Minhas Tarefas — React + Supabase
 
-Aplicação independente reconstruída a partir das capturas de tela de referência do projeto feito no Atoms. **Não é a exportação do código-fonte original do Atoms.**
+Sistema de agenda de tarefas reconstruído a partir das telas enviadas, usando React 19, Vite, Supabase e Netlify. Código independente do Atoms, sem exportação original.
 
 ## Funcionalidades
-- Login, criação de conta e recuperação de senha com Supabase Auth
-- Agenda diária com navegação por data e progresso
-- Criar, editar, concluir e excluir tarefas, com descrição, horário, categoria e prazo
-- Tarefas repetidas diariamente, em dias úteis, semanalmente ou mensalmente, com status independente por ocorrência
-- Relatórios mensais e semanais, com métricas e exportação DOCX e XLSX
-- Tema claro/escuro e cinco paletas de cores salvas neste navegador
-- Dados privados por usuário com Row Level Security (RLS)
-- Interface responsiva para computador e celular
-
-## Hospedagem
-Site Netlify: https://minhas-tarefas-nicolas.netlify.app/
-Configuração em \`netlify.toml\`, com deploy automático da branch \`main\`.
-Não requer comando de build: HTML, CSS e JavaScript são publicados como arquivos estáticos.
+- Interface responsiva para celular, tablet e computador, com temas claro/escuro e cinco paletas
+- Login, cadastro, recuperação de senha e sessão persistente via Supabase Auth
+- Tarefas com título, descrição, data, horário, prazo e conclusão com carimbo de data/hora
+- Repetição diária, em dias úteis, semanal ou mensal; status independente em cada ocorrência
+- **Departamentos:** cadastrar, editar, excluir, escolher cor e vincular a tarefas
+- Categorias personalizadas
+- Relatórios mensais e semanais, incluindo departamento, com download em Word e Excel
+- Salvamento de tarefas, categorias, departamentos e preferências na conta do Supabase
 
 ## Banco de dados
-Projeto Supabase: \`dbzgcydwevpjsfindwcx\`
-Tabelas dedicadas:
-- \`public.agenda_tarefas\`
-- \`public.agenda_categorias\`
+Projeto: `dbzgcydwevpjsfindwcx`. Todas as tabelas abaixo têm Row Level Security (RLS), vinculadas a `auth.uid()`:
+- `agenda_tarefas` — tarefas e vínculo `departamento_id`
+- `agenda_departamentos` — departamentos da conta
+- `agenda_categorias` — categorias da conta
+- `agenda_preferencias` — modo claro/escuro e paleta de cada conta
 
-Ambas estão com RLS e políticas de acesso por \`auth.uid()\`. A chave do frontend é a **publishable key** (não uma chave secreta). As tabelas antigas de listas não são utilizadas.
+Os 42 registros previamente importados para novembro de 2026 foram preservados, junto dos três departamentos identificados nos relatórios históricos. Dados de um usuário não são visíveis aos demais por meio da API pública.
 
-## Observações
-- As tarefas originais do Atoms não foram importadas: as capturas não fornecem os dados completos nem o acesso ao banco original.
-- Uma ocorrência editada de uma série recorrente é independente; novas datas são geradas conforme o período é acessado.
-- Ao excluir uma ocorrência recorrente, ela fica marcada como excluída para não ser recriada.
-- Alterações simultâneas de uma mesma conta em dispositivos diferentes podem exigir recarregar a página.
-- Exportação Word usa JSZip e Excel usa SheetJS via CDN. É necessária conexão com a internet.
-- A versão depende de bibliotecas externas via CDN (Supabase, XLSX e JSZip).
-- A configuração de Auth pode exigir ajuste das URLs permitidas (Netlify) no painel Supabase.
-- Por segurança, configure proteção contra senhas comprometidas no Supabase Auth e use senha forte.
+## Executar
+```bash
+npm install
+npm run dev
+npm run build
+```
+O arquivo `.env.example` mostra as variáveis opcionais `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`.
+A chave publishable é destinada ao navegador. Nunca use service_role ou secret keys no frontend.
 
-## Arquivos
-- \`index.html\` — interface e scripts externos
-- \`styles.css\` — estilos e temas
-- \`app.js\` — lógica do aplicativo e Supabase
-- \`netlify.toml\` — configuração de hospedagem
+## Hospedagem
+Netlify: https://minhas-tarefas-nicolas.netlify.app
+
+`netlify.toml` executa `npm run build` e publica `dist`. O deploy da branch `main` é automático.
+
+## Limitações
+- O código não é uma cópia literal do projeto original do Atoms.
+- Repetições futuras são geradas quando o intervalo correspondente é aberto; cada ocorrência é individual.
+- A atualização simultânea em vários dispositivos pode exigir atualização da página.
+- Recomenda-se ativar a proteção contra senhas vazadas no Supabase Auth.
