@@ -53,3 +53,10 @@ html[data-palette="gold"] .brand-logo{background:linear-gradient(135deg,#e9c57c,
 @media (max-width:850px){.palette-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:620px){.palette-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.palette-card{min-height:90px}.custom-color-controls .btn{width:100%}}
 @media (max-width:360px){.palette-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.palette-card{padding:9px;min-width:0}}
+
+/* Prevent iOS Safari focus zoom while preserving manual pinch-to-zoom. */
+@media (max-width: 620px), (any-pointer: coarse) {
+  input, textarea, select {
+    font-size: 16px;
+  }
+}
